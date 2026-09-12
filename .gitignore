@@ -1,0 +1,4 @@
+node_modules/
+.dsh-verify/
+.DS_Store
+*.log
