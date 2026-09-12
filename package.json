@@ -1,7 +1,7 @@
 {
   "name": "dsh-plugin-codex-ui",
-  "version": "0.1.1",
-  "description": "Codex-style sidebar skin for the DeepSeek Harness Web GUI: a DeepSeek Harness wordmark, a single New chat row that starts a session without picking a project (allocating a fresh working directory and registering it as a real workspace), and two collapsible sections — Projects and Recents — in place of the shipped panel rows.",
+  "version": "0.2.0",
+  "description": "Codex-style sidebar skin for the DeepSeek Harness Web GUI: a DeepSeek Harness wordmark, a single New chat row that starts a real session without picking a project (allocating a fresh working directory, registering it as a real workspace, and reclaiming it again as soon as the chat is abandoned unused), and two collapsible sections — Projects and Recents — in place of the shipped panel rows.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {

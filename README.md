@@ -1,5 +1,5 @@
 ---
-description: "Codex-style sidebar skin for the DeepSeek Harness Web GUI: a Projects + Recents browser, a New chat row that starts a session with no project and allocates its own working directory, and a draft composer that writes nothing until you send."
+description: "Codex-style sidebar skin for the DeepSeek Harness Web GUI: a Projects + Recents browser and a New chat row that starts a real session with no project in a freshly minted working directory, reclaimed again the moment the chat is abandoned unused."
 kind: "package-reference"
 ---
 
@@ -16,7 +16,7 @@ Codex app does.
 
 ```
 DeepSeek Harness                           ⇤      ← brand row (shipped shell, renamed)
-＋ 新对话                                          ← starts a draft; nothing is written yet
+＋ 新对话                                          ← starts a real chat in a fresh temporary directory
 ─────────────────────────────────────────────
 项目                                        ＋      ← section title; click it to fold
     📁 pi                                     ← one row per project, no chevron
@@ -80,30 +80,25 @@ dsh plugin --profile web remove dsh-plugin-codex-ui
 
 ### Start a chat with no project
 
-**新对话 opens a draft, and a draft is UI state and nothing else.** No session row, no
-Workspace registration, and above all no directory: click it ten times and the disk is
-untouched. Only sending mints anything.
+**新对话 starts a real chat with no project.** It asks the node half for a fresh working
+directory, registers that directory as a Workspace, creates the session in it and opens
+it — the shipped New Session order, with a directory the reader never had to pick. The
+composer that comes up is the shipped one and fully live: the model picker, the permission
+chip, `+`, `@`, and the context meter all work from the first keystroke.
 
-Typing before anything exists needs somewhere to type, and the shipped blank-state
-composer cannot serve: it is inert until the session has a workspace, and a session
-cannot have one before its directory exists. So the draft lays its own input over that
-composer's input box and send control — those two boxes only, addressed by the semantic
-attributes the shipped component sets (`data-phase="hero"`, `data-composer-card`,
-`data-composer-input`), never by a hashed class name. The card, the tool row, the
-workspace picker and the mode chip stay exactly the shipped ones.
+There is no mock composer and nothing is deferred, because a chat you can choose a model in
+has to exist, and a session cannot exist without a working directory. The directory is
+created when the chat is.
 
-The twin carries the card's own fill rather than a transparent one, and the shipped
-input's own inset and type scale: the shipped placeholder occupies exactly the box the
-twin covers, so a clear twin lets it show through and collide with the twin's placeholder
-into one unreadable line, and a mismatched inset puts the typed text where the shipped
-text would not be.
-
-Sending then does what the click used to do, in the one order that cannot half-fail:
-mint the directory, register it as a real Workspace, create and open the session, and
-hand it the text. Each step is created at most once per draft, so a retry after a
-failure can never leave a second directory behind. If the registration is refused the
-fresh directory is removed again; once the registration exists the directory is
-referenced and is never deleted from under it.
+That is what the cleanup is for. The last chat this row minted is remembered, and reclaimed
+the moment the reader moves on without using it: the session is archived, its Workspace
+registration dropped, its directory removed. Ten clicks in a row leave one directory, not
+ten. A chat that was **used** is never reclaimed — messages make it an ordinary chat, and
+typed text keeps it (and keeps its row listed, so the text stays reachable) until it is
+sent or cleared. Anything this skin minted and then lost track of — a crash between minting
+and recording, a record lost with the browser's storage — is swept on the next load: a
+directory under this skin's root that no workspace and no chat refers to, or a minted
+workspace holding nothing but untouched chats, older than a grace period, goes.
 
 Why the registration matters: a session rooted only at a working directory and owned by
 no workspace is treated by the conversation as *incomplete* — the composer goes inert
@@ -207,10 +202,12 @@ implementations, which switches the skin off without uninstalling it.)
 ## How it works
 
 * **The node half** (`lib/index.js`) exposes two `exact` routes over the harness web
-  server — allocate a working directory, and delete directories this plugin
-  allocated. Names are entirely server-generated, deletion accepts names only, and
-  every name is validated as a single path segment and re-checked for containment
-  after resolution. No caller-supplied path ever reaches the filesystem.
+  server — allocate a working directory (and report the root plus everything already
+  minted under it), and delete directories this plugin allocated. Names are entirely
+  server-generated, deletion accepts names only, and every name is validated as a single
+  path segment and re-checked for containment after resolution. No caller-supplied path
+  ever reaches the filesystem. The listing is what the browser half's load-time sweep
+  reads to tell a directory nothing refers to from one live work sits in.
 * **The browser half** (`lib/client.js`) claims two `single` slots:
   `sidebar.brand.name` for the wordmark and `sidebar.workspaces` for the browsing
   region. A `single` slot is claimed rather than composed — the registry refuses a
