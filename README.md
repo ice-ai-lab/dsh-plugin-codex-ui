@@ -18,11 +18,11 @@ Codex app does.
 DeepSeek Harness                           ⇤      ← brand row (shipped shell, renamed)
 ＋ 新对话                                          ← starts a draft; nothing is written yet
 ─────────────────────────────────────────────
-▾ 项目                                     ＋
+项目                                        ＋      ← section title; click it to fold
     📁 pi                                     ← one row per project, no chevron
     📁 dsh-plugin-codex-ui
-▾ 最近
-    20260912-135505-27c0                      2h   ← project-less chats only
+最近
+    20260912-135505-27c0                       ← project-less chats only, title only
     …                                         显示更多
 ─────────────────────────────────────────────
 ⚙ 设置                                             ← shipped settings foot
@@ -30,6 +30,13 @@ DeepSeek Harness                           ⇤      ← brand row (shipped shell
 
 Both sections fold, each fold survives a reload, and clicking a project folds its own
 chats out beneath it.
+
+Section titles and rows read the way the Codex sidebar does: a section title is a small
+quiet label on the same left inset as the row glyphs under it, a row is a 32px line whose
+title owns the full width — no chevron, no relative time — and the row glyphs and titles
+carry the dark `label-primary` text while a section title and a collapsed section's count
+stay `label-tertiary`. Hover is a background change, not a colour change, and the current
+chat is marked by its filled pill.
 
 ## What it changes
 
